@@ -1,25 +1,31 @@
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+// import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "../../hooks/useForm";
 import queryString from 'query-string';
+import { getHerosByName } from "../helpers";
+import { HeroCard } from "../components";
+// import { HeroPage } from "./HeroPage";
+
 
 export const SearchPage = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
 
-  const query =  queryString.parse( location.search);
+  const { q = "" } =  queryString.parse( location.search ) as { q?: string };;
 
-  console.log(query)
+  const heros = getHerosByName( q )
+  console.log( heros )
 
   const { searchText, onInputChange } = useForm({ searchText: '' });
 
-  const onSearchSubmit = (event: React.FormEvent) => {
+  const onSearchSubmit = ( event: React.FormEvent ) => {
     
     event.preventDefault();
     
     if(searchText.trim().length<=1) return;
     
-    navigate(`?q=${ searchText.toLocaleLowerCase().trim()}`)
+    navigate(`?q=${ searchText.toLowerCase().trim()}`)
     
     console.log({searchText});
   };
@@ -52,10 +58,19 @@ export const SearchPage = () => {
           <h4>Results</h4>
           <hr />
           <div className="alert alert-primary">Search a Hero...</div>
-          <div className="alert alert-danger">There are no results.</div>
+          <div className="alert alert-danger">There are no results with { q }.</div>
         </div>
 
-        {/* <HeroCard/> */}
+        {heros.map(hero => (
+          <HeroCard key={hero.id} {...hero} />
+        ))}
+
+
+        {/* {
+          heros.map( hero=>{
+            <HeroCard key={HeroPage.id}{...hero}/>
+          })
+        } */}
       </div>
     </>
   );
